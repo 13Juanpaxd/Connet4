@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Conecta 4 - Visualizar partida</title>
+    <link rel="icon" type="image/png" href="{{ url_for('serve_assets', filename='Logo.png') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Silkscreen&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: 'Silkscreen', Arial, sans-serif;
+            background: #f3f6fa;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #333;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            max-width: 900px;
+            margin-bottom: 20px;
+            gap: 20px;
+        }
+        .stats-container {
+            flex: 1;
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border: 2px solid #222831;
+            min-width: 200px;
+        }
+        .jugador1-stats { border-top: 5px solid #FF5252; }
+        .jugador2-stats { border-top: 5px solid #4CAF50; }
+        .stats-title { font-size: 1.2em; margin-bottom: 10px; text-align: center; font-weight: bold; }
+        .stat-item { display: flex; justify-content: space-between; margin-bottom: 8px; padding-bottom: 5px; border-bottom: 1px dashed #ddd; }
+        .stat-value { font-weight: bold; }
+        .vs-container { display: flex; flex-direction: column; justify-content: center; align-items: center; min-width: 100px; }
+        .vs { font-size: 2.5em; font-weight: bold; color: #FF5722; text-shadow: 2px 2px 4px rgba(0,0,0,0.2); }
+        .nombres-jugadores { display: flex; justify-content: center; gap: 20px; margin-top: 10px; }
+        .nombre-jugador { padding: 8px 15px; border-radius: 20px; font-weight: bold; text-align: center; }
+        .jugador1 { background-color: rgba(255, 82, 82, 0.2); color: #FF5252; }
+        .jugador2 { background-color: rgba(76, 175, 80, 0.2); color: #4CAF50; }
+        #game-container { display: flex; flex-direction: column; align-items: center; margin-top: 20px; }
+        #board-labels { display: grid; grid-template-columns: repeat(7, 64px); gap: 6px; margin-bottom: 0px; width: max-content; margin-left: auto; margin-right: auto; background: #1976d2; border-radius: 16px 16px 0 0; box-shadow: 0 0 16px rgba(0,0,0,0.5); padding: 8px 12px 0 12px; position: relative; top: 6px; z-index: 2; }
+        .board-label { text-align: center; font-family: 'Silkscreen', Arial, sans-serif; font-weight: bold; font-size: 2.2em; color: #fff; letter-spacing: 2px; user-select: none; height: 48px; display: flex; align-items: flex-end; justify-content: center; text-shadow: 2px 2px 0 #1976d2, 0 0 8px #fff, 0 0 2px #222; border-radius: 10px 10px 0 0; }
+        #board { display: grid; grid-template-columns: repeat(7, 64px); grid-template-rows: repeat(6, 64px); gap: 6px; background: #1976d2; border-radius: 16px; box-shadow: 0 0 16px rgba(0,0,0,0.5); padding: 12px 12px 18px 12px; position: relative; }
+        .cell { width: 64px; height: 64px; background: radial-gradient(circle at 50% 50%, #222 70%, #1976d2 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; position: relative; overflow: visible; }
+        .piece { width: 90px; height: 90px; position: absolute; left: -13px; top: -13px; z-index: 2; filter: drop-shadow(0 0 32px #fff) drop-shadow(0 0 24px #ff0) drop-shadow(0 0 16px #fff8); }
+        .estado-final { margin: 30px 0 0 0; font-size: 1.5em; color: #c00; text-align: center; font-family: inherit; }
+        @media (max-width: 768px) {
+            #board { grid-template-columns: repeat(7, 50px); grid-template-rows: repeat(6, 50px); padding: 8px 8px 12px 8px; }
+            .cell { width: 50px; height: 50px; }
+            .piece { width: 70px; height: 70px; left: -10px; top: -10px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="stats-container jugador1-stats">
+            <div class="stats-title">{{ jugador1 }}</div>
+            <div class="stat-item"><span>Puntuación:</span><span class="stat-value">{{ stats1.Puntuacion if stats1 else 0 }}</span></div>
+            <div class="stat-item"><span>Ganadas:</span><span class="stat-value">{{ stats1.Ganadas if stats1 else 0 }}</span></div>
+            <div class="stat-item"><span>Empatadas:</span><span class="stat-value">{{ stats1.Empatadas if stats1 else 0 }}</span></div>
+            <div class="stat-item"><span>Perdidas:</span><span class="stat-value">{{ stats1.Perdidas if stats1 else 0 }}</span></div>
+        </div>
+        <div class="vs-container">
+            <div class="vs">VS</div>
+            <div class="nombres-jugadores">
+                <div class="nombre-jugador jugador1">{{ jugador1 }}</div>
+                <div class="nombre-jugador jugador2">{{ jugador2 }}</div>
+            </div>
+        </div>
+        <div class="stats-container jugador2-stats">
+            <div class="stats-title">{{ jugador2 }}</div>
+            <div class="stat-item"><span>Puntuación:</span><span class="stat-value">{{ stats2.Puntuacion if stats2 else 0 }}</span></div>
+            <div class="stat-item"><span>Ganadas:</span><span class="stat-value">{{ stats2.Ganadas if stats2 else 0 }}</span></div>
+            <div class="stat-item"><span>Empatadas:</span><span class="stat-value">{{ stats2.Empatadas if stats2 else 0 }}</span></div>
+            <div class="stat-item"><span>Perdidas:</span><span class="stat-value">{{ stats2.Perdidas if stats2 else 0 }}</span></div>
+        </div>
+    </div>
+    <div id="game-container">
+        <div id="board-labels"></div>
+        <div id="board"></div>
+    </div>
+    <div class="estado-final">
+        Estado de la partida: <b>{{ estado }}</b>
+    </div>
+    <script>
+        const ROWS = 6;
+        const COLS = 7;
+        const COLUMN_LABELS = ['A', 'B', 'C', 'D', 'E', 'F', 'G'];
+        const fichaImgs = [
+            '{{ url_for("serve_assets", filename="FichaP.png") }}',
+            '{{ url_for("serve_assets", filename="FichaS.png") }}'
+        ];
+        let board = Array.from({length: ROWS}, () => Array(COLS).fill(null));
+        {% if partida_json %}
+        let partidaCargada = JSON.parse('{{ partida_json|tojson|safe }}');
+        board = partidaCargada.tablero;
+        {% endif %}
+        const boardDiv = document.getElementById('board');
+        const boardLabelsDiv = document.getElementById('board-labels');
+        function renderBoardLabels() {
+            boardLabelsDiv.innerHTML = '';
+            boardLabelsDiv.style.display = '';
+            for (let i = 0; i < COLS; i++) {
+                const label = document.createElement('div');
+                label.textContent = COLUMN_LABELS[i];
+                label.className = 'board-label';
+                boardLabelsDiv.appendChild(label);
+            }
+        }
+        function renderBoard() {
+            renderBoardLabels();
+            boardDiv.innerHTML = '';
+            for (let r = 0; r < ROWS; r++) {
+                for (let c = 0; c < COLS; c++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'cell';
+                    cell.dataset.row = r;
+                    cell.dataset.col = c;
+                    boardDiv.appendChild(cell);
+                }
+            }
+            for (let r = 0; r < ROWS; r++) {
+                for (let c = 0; c < COLS; c++) {
+                    if (board[r][c] !== null) {
+                        const cell = Array.from(boardDiv.children).find(
+                            el => el.classList.contains('cell') && +el.dataset.row === r && +el.dataset.col === c
+                        );
+                        const piece = document.createElement('img');
+                        piece.src = fichaImgs[board[r][c]];
+                        piece.className = 'piece';
+                        cell.appendChild(piece);
+                    }
+                }
+            }
+        }
+        renderBoard();
+    </script>
+</body>
+</html>

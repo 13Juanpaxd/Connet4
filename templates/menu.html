@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Menú Principal</title>
+    <link rel="icon" type="image/png" href="/Assets/Logo.png">
+    <link href="https://fonts.googleapis.com/css2?family=Silkscreen&display=swap" rel="stylesheet">
+    <style>
+    /* Estilos generales */
+    body {
+        background: #f0f8ff;
+        font-family: 'Silkscreen', Arial, sans-serif;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        margin: 0;
+        color: #333;
+    }
+
+    /* Menú principal */
+    .menu-container {
+        background: #fff;
+        border-radius: 16px;
+        box-shadow: 0 4px 24px rgba(0,0,0,0.12);
+        padding: 40px 32px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 28px;
+        min-width: 340px;
+        max-width: 90%;
+        margin: 20px;
+    }
+
+    .menu-title {
+        font-size: 2.2em;
+        color: #1976d2;
+        margin-bottom: 10px;
+        text-align: center;
+        text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+    }
+
+    .logo {
+        width: 80px;
+        margin-bottom: 18px;
+    }
+
+    /* Botones */
+    .menu-btn {
+        font-family: 'Silkscreen', Arial, sans-serif;
+        font-size: 1.1em;
+        padding: 18px 32px;
+        border-radius: 10px;
+        border: 2px solid #1976d2;
+        background: #e3f0ff;
+        color: #1976d2;
+        cursor: pointer;
+        margin: 0 0 8px 0;
+        transition: all 0.2s ease;
+        font-weight: bold;
+        width: 100%;
+        box-shadow: 0 2px 8px rgba(25, 118, 210, 0.1);
+    }
+
+    .menu-btn:hover {
+        background: #1976d2;
+        color: #fff;
+        box-shadow: 0 4px 16px rgba(25, 118, 210, 0.3);
+        transform: translateY(-2px);
+    }
+
+    /* Modales */
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0,0,0,0.5);
+    }
+
+    .modal-contenido {
+        background-color: #fefefe;
+        margin: 3% auto;
+        padding: 25px;
+        border-radius: 10px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+        width: 90%;
+        max-width: 800px;
+        max-height: 85vh;
+        overflow-y: auto;
+        position: relative;
+        border: none;
+    }
+
+    .cerrar-modal {
+        color: #aaa;
+        position: absolute;
+        right: 20px;
+        top: 15px;
+        font-size: 28px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: color 0.2s;
+    }
+
+    .cerrar-modal:hover {
+        color: #333;
+    }
+
+    /* Formulario de registro */
+    #formRegistro {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        margin-top: 20px;
+    }
+
+    #formRegistro label {
+        font-weight: bold;
+        margin-bottom: 5px;
+        display: block;
+    }
+
+    #formRegistro input {
+        padding: 12px;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        font-size: 1em;
+        width: 100%;
+        box-sizing: border-box;
+        font-family: 'Silkscreen', Arial, sans-serif;
+    }
+
+    #formRegistro button {
+        padding: 12px;
+        background-color: #1976d2;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 1em;
+        font-family: 'Silkscreen', Arial, sans-serif;
+        transition: background 0.3s;
+        margin-top: 10px;
+    }
+
+    #formRegistro button:hover {
+        background-color: #1567b8;
+    }
+
+    .mensaje {
+        padding: 12px;
+        border-radius: 6px;
+        margin-top: 15px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 0.95em;
+    }
+
+    /* Tabla de escalafón */
+    .tabla-escalafon {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 20px 0;
+        font-size: 0.95em;
+        table-layout: fixed;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 0 15px rgba(0,0,0,0.1);
+    }
+
+    .tabla-escalafon thead tr {
+        background-color: #1976d2;
+        color: #ffffff;
+        text-align: center;
+        font-weight: bold;
+    }
+
+    .tabla-escalafon th, 
+    .tabla-escalafon td {
+        padding: 12px 10px;
+        text-align: center;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        border-bottom: 1px solid #e0e0e0;
+    }
+
+    /* Anchos de columnas */
+    .tabla-escalafon th:nth-child(1),
+    .tabla-escalafon td:nth-child(1) { width: 60px; }
+    .tabla-escalafon th:nth-child(2),
+    .tabla-escalafon td:nth-child(2) { 
+        width: 180px; 
+        text-align: left;
+        padding-left: 15px;
+    }
+    .tabla-escalafon th:nth-child(3),
+    .tabla-escalafon td:nth-child(3) { width: 70px; }
+    .tabla-escalafon th:nth-child(4),
+    .tabla-escalafon td:nth-child(4),
+    .tabla-escalafon th:nth-child(5),
+    .tabla-escalafon td:nth-child(5),
+    .tabla-escalafon th:nth-child(6),
+    .tabla-escalafon td:nth-child(6) { width: 50px; }
+    .tabla-escalafon th:nth-child(7),
+    .tabla-escalafon td:nth-child(7) { width: 100px; }
+
+    /* Estilos de filas */
+    .tabla-escalafon tbody tr:nth-of-type(even) {
+        background-color: #f8f9fa;
+    }
+
+    .tabla-escalafon tbody tr:hover {
+        background-color: #f1f7ff;
+    }
+
+    .escalafon-oro {
+        background-color: rgba(255, 215, 0, 0.1) !important;
+    }
+
+    .escalafon-plata {
+        background-color: rgba(192, 192, 192, 0.1) !important;
+    }
+
+    .escalafon-bronce {
+        background-color: rgba(205, 127, 50, 0.1) !important;
+    }
+
+    .nombre-jugador {
+        font-weight: bold;
+        color: #333;
+    }
+
+    .posicion-numero {
+        font-weight: bold;
+        color: #555;
+    }
+
+    .tabla-escalafon svg {
+        display: inline-block;
+        vertical-align: middle;
+        width: 22px;
+        height: 22px;
+    }
+
+    /* Lista de partidas */
+    .partidas-lista {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .partidas-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 14px 0;
+        border-bottom: 1px solid #eee;
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+
+    .partidas-item:hover {
+        background: #f0f0f0;
+    }
+
+    .partidas-item-terminada {
+        background: #f5f5f5;
+        color: #aaa;
+        opacity: 0.8;
+    }
+
+    .partidas-estado {
+        font-weight: bold;
+        margin-left: 10px;
+    }
+
+    .partidas-fecha {
+        color: #888;
+        font-size: 0.9em;
+        margin-left: 10px;
+    }
+
+    /* Selección de jugadores */
+    .partida-lista {
+        list-style: none;
+        padding: 0;
+        margin: 15px 0;
+    }
+
+    .partida-item {
+        padding: 12px 15px;
+        border-bottom: 1px solid #eee;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .partida-item:hover {
+        background: #f0f0f0;
+    }
+
+    .partida-seleccionado {
+        background: #e3f2fd;
+        font-weight: bold;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .menu-container {
+            padding: 30px 20px;
+            min-width: 280px;
+        }
+        
+        .modal-contenido {
+            width: 95%;
+            padding: 20px;
+            margin: 10px auto;
+        }
+        
+        .tabla-escalafon {
+            font-size: 0.85em;
+        }
+        
+        .tabla-escalafon th, 
+        .tabla-escalafon td {
+            padding: 10px 6px;
+        }
+        
+        .tabla-escalafon th:nth-child(1),
+        .tabla-escalafon td:nth-child(1) { width: 40px; }
+        .tabla-escalafon th:nth-child(2),
+        .tabla-escalafon td:nth-child(2) { 
+            width: 120px;
+            padding-left: 10px;
+        }
+        .tabla-escalafon th:nth-child(7),
+        .tabla-escalafon td:nth-child(7) { display: none; }
+    }
+
+    @media (max-width: 480px) {
+        .menu-title {
+            font-size: 1.8em;
+        }
+        
+        .menu-btn {
+            padding: 15px 20px;
+            font-size: 1em;
+        }
+        
+        .tabla-escalafon {
+            font-size: 0.8em;
+        }
+        
+        .partidas-item {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 5px;
+        }
+        
+        .partidas-estado,
+        .partidas-fecha {
+            margin-left: 0;
+        }
+    }
+</style>
+</head>
+<body>
+    <div class="menu-container">
+        <img src="/Assets/Logo.png" alt="Logo" class="logo">
+        <div class="menu-title">Menú Principal</div>
+        <button class="menu-btn" type="button" onclick="abrirModalRegistro()">Crear un jugador nuevo</button>
+        <form action="/juego" method="get" style="width:100%">
+            <button class="menu-btn" type="button" onclick="abrirModalPartida()">Crear una partida nueva</button>
+        </form>
+        <form action="/cargar_partida" method="get" style="width:100%">
+            <button class="menu-btn" type="button" onclick="abrirModalCargarPartida()">Cargar una partida existente</button>
+        </form>
+        <form action="/escalafon" method="get" style="width:100%">
+            <button class="menu-btn" type="button" onclick="abrirModalEscalafon()">Mostrar el escalafón de jugadores</button>
+        </form>
+    </div>
+
+    <!-- Modal de registro de jugador -->
+    <div id="modalRegistro" class="modal">
+        <div class="modal-contenido" style="max-width: 400px;">
+            <span class="cerrar-modal" onclick="cerrarModalRegistro()">&times;</span>
+            <h2>Registrar Jugador</h2>
+            <form id="formRegistro" method="POST" autocomplete="off">
+                <label for="nombre">Nombre:</label>
+                <input type="text" id="nombre" name="nombre" required>
+                <label for="identificacion">Identificación:</label>
+                <input type="text" id="identificacion" name="identificacion" required>
+                <button type="submit">Guardar</button>
+                <div id="mensajeRegistro" class="mensaje" style="display:none;margin-top:10px;"></div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Escalafón -->
+<!-- Modal Escalafón -->
+<div id="modalEscalafon" class="modal">
+    <div class="modal-contenido">
+        <span class="cerrar-modal" onclick="cerrarModalEscalafon()">&times;</span>
+        <div style="margin-bottom: 15px; text-align: center;">
+            <img src="/Assets/PODIO.png" alt="Podio" style="width:80px; margin-bottom: 10px; display:block; margin-left:auto; margin-right:auto;">
+            <h2 style="margin: 5px 0; color:#1976d2; font-size: 1.5em;">Ranking de Jugadores</h2>
+            <p style="margin: 0; color: #555; font-size: 0.9em;">Estadísticas completas</p>
+        </div>
+        <div id="escalafonLista" style="overflow-x: auto;"></div>
+    </div>
+</div>
+
+    <!-- Modal para crear partida nueva (selección de jugadores) -->
+    <div id="modalPartida" class="modal">
+        <div class="modal-contenido" style="max-width: 600px;">
+            <span class="cerrar-modal" onclick="cerrarModalPartida()">&times;</span>
+            <h2>Selecciona Jugadores</h2>
+            <div id="partidaSeleccionJugadores"></div>
+        </div>
+    </div>
+
+    <!-- Modal para cargar partida -->
+    <div id="modalCargarPartida" class="modal">
+        <div class="modal-contenido" style="max-width: 700px;">
+            <span class="cerrar-modal" onclick="cerrarModalCargarPartida()">&times;</span>
+            <h2>Selecciona una partida</h2>
+            <div id="listaPartidas"></div>
+        </div>
+    </div>
+
+    <script>
+    // Modal registro
+    function abrirModalRegistro() {
+        document.getElementById('modalRegistro').style.display = 'flex';
+        document.getElementById('mensajeRegistro').style.display = 'none';
+        document.getElementById('formRegistro').reset();
+    }
+    function cerrarModalRegistro() {
+        document.getElementById('modalRegistro').style.display = 'none';
+    }
+    // Cerrar modal al hacer clic fuera
+    window.onclick = function(event) {
+        const modal = document.getElementById('modalRegistro');
+        if (event.target === modal) cerrarModalRegistro();
+    }
+    // Enviar registro por AJAX
+    document.getElementById('formRegistro').onsubmit = async function(e) {
+    e.preventDefault();
+    const nombre = document.getElementById('nombre').value.trim();
+    const identificacion = document.getElementById('identificacion').value.trim();
+    const mensajeDiv = document.getElementById('mensajeRegistro');
+    mensajeDiv.style.display = 'none';
+    
+    try {
+        const res = await fetch('/registro', {
+            method: 'POST',
+            headers: { 
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: `nombre=${encodeURIComponent(nombre)}&identificacion=${encodeURIComponent(identificacion)}`
+        });
+        
+        const data = await res.json();
+        
+        mensajeDiv.textContent = data.message;
+        mensajeDiv.style.display = 'block';
+        
+        if (data.success) {
+            mensajeDiv.style.background = '#e8f8f5';
+            mensajeDiv.style.color = '#2ecc71';
+            setTimeout(cerrarModalRegistro, 1200);
+        } else {
+            mensajeDiv.style.background = '#ffeaea';
+            mensajeDiv.style.color = '#c0392b';
+        }
+    } catch (error) {
+        mensajeDiv.textContent = 'Error de conexión';
+        mensajeDiv.style.display = 'block';
+        mensajeDiv.style.background = '#ffeaea';
+        mensajeDiv.style.color = '#c0392b';
+        console.error('Error:', error);
+    }
+};
+    // Modal escalafón
+    // Modal escalafón - Versión mejorada
+function abrirModalEscalafon() {
+    document.getElementById('modalEscalafon').style.display = 'flex';
+    cargarEscalafon();
+}
+
+function cerrarModalEscalafon() {
+    document.getElementById('modalEscalafon').style.display = 'none';
+}
+
+window.onclick = function(event) {
+    const modal = document.getElementById('modalEscalafon');
+    if (event.target === modal) cerrarModalEscalafon();
+}
+
+async function cargarEscalafon() {
+    try {
+        const res = await fetch('/api/escalafon');
+        const data = await res.json();
+        
+        const contenedor = document.getElementById('escalafonLista');
+        contenedor.innerHTML = '';
+        
+        // Crear contenedor de tabla con scroll horizontal si es necesario
+        const tableContainer = document.createElement('div');
+        tableContainer.style.overflowX = 'auto';
+        tableContainer.style.width = '100%';
+        
+        // Crear tabla para mostrar los datos
+        const tabla = document.createElement('table');
+        tabla.className = 'tabla-escalafon';
+        
+        // Crear encabezados de la tabla
+        const thead = document.createElement('thead');
+        thead.innerHTML = `
+            <tr>
+                <th>#</th>
+                <th>Jugador</th>
+                <th>Pts</th>
+                <th>G</th>
+                <th>E</th>
+                <th>P</th>
+                <th>ID</th>
+            </tr>
+        `;
+        tabla.appendChild(thead);
+        
+        // Crear cuerpo de la tabla
+        const tbody = document.createElement('tbody');
+        
+        data.forEach((jugador, index) => {
+            const fila = document.createElement('tr');
+            if (index === 0) fila.classList.add('escalafon-oro');
+            if (index === 1) fila.classList.add('escalafon-plata');
+            if (index === 2) fila.classList.add('escalafon-bronce');
+
+            // Imagen de podio para los 3 primeros
+            let posicionIcon = `<span class="posicion-numero">${index + 1}</span>`;
+            if (index === 0) {
+                posicionIcon = `<img src='/Assets/Primero.png' alt='1°' style='width:28px;vertical-align:middle;'>`;
+            } else if (index === 1) {
+                posicionIcon = `<img src='/Assets/Segundo.png' alt='2°' style='width:28px;vertical-align:middle;'>`;
+            } else if (index === 2) {
+                posicionIcon = `<img src='/Assets/Tercero.png' alt='3°' style='width:28px;vertical-align:middle;'>`;
+            }
+
+            fila.innerHTML = `
+                <td>${posicionIcon}</td>
+                <td class="nombre-jugador" title="${jugador.Nombre}">${jugador.Nombre}</td>
+                <td>${jugador.Puntuacion}</td>
+                <td>${jugador.Ganadas}</td>
+                <td>${jugador.Empatadas}</td>
+                <td>${jugador.Perdidas}</td>
+                <td>${jugador.Identificacion}</td>
+            `;
+            tbody.appendChild(fila);
+        });
+        
+        tabla.appendChild(tbody);
+        tableContainer.appendChild(tabla);
+        contenedor.appendChild(tableContainer);
+        
+    } catch (error) {
+        console.error('Error al cargar el escalafón:', error);
+        document.getElementById('escalafonLista').innerHTML = 
+            '<p class="error-mensaje">No se pudo cargar el escalafón. Intenta nuevamente.</p>';
+    }
+}
+    // Modal partida
+    function abrirModalPartida() {
+        document.getElementById('modalPartida').style.display = 'flex';
+        cargarJugadoresPartida();
+    }
+    function cerrarModalPartida() {
+        document.getElementById('modalPartida').style.display = 'none';
+    }
+    window.onclick = function(event) {
+        const modal = document.getElementById('modalPartida');
+        if (event.target === modal) cerrarModalPartida();
+    }
+    let jugador1 = null, jugador2 = null;
+    async function cargarJugadoresPartida() {
+        const res = await fetch('/api/escalafon');
+        const data = await res.json();
+        let html = '<h3>Jugador 1</h3><ul class="partida-lista" id="listaJ1">';
+        data.forEach(j => {
+            html += `<li class='partida-item' onclick='seleccionarJ1("${j.Nombre}")'>${j.Nombre}</li>`;
+        });
+        html += '</ul>';
+        html += '<h3>Rival</h3><ul class="partida-lista" id="listaJ2">';
+        data.forEach(j => {
+            html += `<li class='partida-item' onclick='seleccionarJ2("${j.Nombre}")'>${j.Nombre}</li>`;
+        });
+        html += '</ul>';
+        html += '<button class="menu-btn" style="margin-top:18px;" onclick="iniciarPartida()">Iniciar Partida</button>';
+        document.getElementById('partidaSeleccionJugadores').innerHTML = html;
+        jugador1 = null; jugador2 = null;
+    }
+    function seleccionarJ1(nombre) {
+        jugador1 = nombre;
+        document.querySelectorAll('#listaJ1 .partida-item').forEach(el => {
+            el.classList.toggle('partida-seleccionado', el.textContent === nombre);
+        });
+        // Ocultar jugador1 de la lista de rivales
+        document.querySelectorAll('#listaJ2 .partida-item').forEach(el => {
+            el.style.display = (el.textContent === nombre) ? 'none' : 'block';
+            if (el.classList.contains('partida-seleccionado')) el.classList.remove('partida-seleccionado');
+        });
+        jugador2 = null;
+    }
+    function seleccionarJ2(nombre) {
+        jugador2 = nombre;
+        document.querySelectorAll('#listaJ2 .partida-item').forEach(el => {
+            el.classList.toggle('partida-seleccionado', el.textContent === nombre);
+        });
+    }
+    function iniciarPartida() {
+        if (jugador1 && jugador2 && jugador1 !== jugador2) {
+            // Guardar partida en la base de datos antes de redirigir
+            fetch('/api/crear_partida', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ jugador1, jugador2 })
+            }).then(res => res.json()).then(data => {
+                if (data.success) {
+                    window.location.href = `/juego?jugador1=${encodeURIComponent(jugador1)}&jugador2=${encodeURIComponent(jugador2)}`;
+                } else {
+                    alert('Error al crear la partida: ' + (data.error || '')); 
+                }
+            }).catch(() => {
+                alert('Error de conexión al crear la partida.');
+            });
+        } else {
+            alert('Selecciona dos jugadores diferentes.');
+        }
+    }
+    // Modal cargar partida
+    function abrirModalCargarPartida() {
+        document.getElementById('modalCargarPartida').style.display = 'flex';
+        cargarPartidas();
+    }
+    function cerrarModalCargarPartida() {
+        document.getElementById('modalCargarPartida').style.display = 'none';
+    }
+    window.onclick = function(event) {
+        const modal = document.getElementById('modalCargarPartida');
+        if (event.target === modal) cerrarModalCargarPartida();
+    }
+    async function cargarPartidas() {
+        const res = await fetch('/api/listar_partidas');
+        const data = await res.json();
+        let html = '';
+        if (!Array.isArray(data) || data.length === 0) {
+            html = `<div style=\"text-align:center; color:#888; font-size:1.2em; padding:30px 0;\">No hay partidas disponibles para cargar.</div>`;
+        } else {
+            html = '<ul class=\"partidas-lista\">';
+            data.forEach(p => {
+                if (p.Estado === "En progreso") {
+                    html += `<li class='partidas-item' onclick='cargarPartidaSeleccionada(${p.PartidaID})' style='cursor:pointer;'>
+                        <span><b>${p.Jugador1}</b> vs <b>${p.Jugador2}</b></span>
+                        <span class='partidas-estado' style='color:#1976d2'>${p.Estado}</span>
+                        <span class='partidas-fecha'>${p.Fecha}</span>
+                    </li>`;
+                } else {
+                    html += `<li class='partidas-item partidas-item-terminada' onclick='verPartida(${p.PartidaID})' style='cursor:pointer; opacity:0.7;'>
+                        <span><b>${p.Jugador1}</b> vs <b>${p.Jugador2}</b></span>
+                        <span class='partidas-estado' style='color:#888'>${p.Estado}</span>
+                        <span class='partidas-fecha'>${p.Fecha}</span>
+                    </li>`;
+                }
+            });
+            html += '</ul>';
+        }
+        document.getElementById('listaPartidas').innerHTML = html;
+    }
+
+    function verPartida(id) {
+        window.location.href = `/ver_partida?id_partida=${id}`;
+    }
+    function cargarPartidaSeleccionada(id) {
+        window.location.href = `/juego?id_partida=${id}`;
+    }
+    </script>
+</body>
+</html>
