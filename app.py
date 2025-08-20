@@ -138,107 +138,84 @@ def juego():
     jugador1 = request.args.get('jugador1')
     jugador2 = request.args.get('jugador2')
     
+    # Si se recibe solo el id_partida, obtenemos los nombres y redirigimos con ellos
+    if id_partida and (not jugador1 or not jugador2):
+        try:
+            jugador1_db, jugador2_db, _, _, _, _ = obtener_datos_partida(id_partida)
+            if not jugador1_db or not jugador2_db:
+                return "Jugadores no encontrados para esa partida", 404
+            return redirect(url_for('juego', id_partida=id_partida, jugador1=jugador1_db, jugador2=jugador2_db))
+        except Exception as e:
+            return f"Error al obtener datos de la partida: {str(e)}", 500
+
     # Validación básica de parámetros
     if not jugador1 or not jugador2:
         return jsonify({
             'success': False,
             'error': 'Parámetros requeridos: jugador1 y jugador2'
         }), 400
-    
-    # Si no hay ID de partida, crear una nueva
+
+    # Si no hay ID de partida, crear una nueva partida
     if not id_partida:
         try:
-            # Crear nueva partida directamente sin redirección intermedia
             conn = get_db_connection()
             if not conn:
-                return jsonify({
-                    'success': False,
-                    'error': 'Error de conexión a la base de datos'
-                }), 500
-                
+                return jsonify({'success': False, 'error': 'Error de conexión a la base de datos'}), 500
+
             cursor = conn.cursor()
-            
-            # Obtener IDs de los jugadores
             cursor.execute("SELECT JugadorID FROM Jugadores WHERE Nombre = :nombre", {'nombre': jugador1})
             id_jugador = cursor.fetchone()
             cursor.execute("SELECT JugadorID FROM Jugadores WHERE Nombre = :nombre", {'nombre': jugador2})
             id_rival = cursor.fetchone()
-            
-            if not id_jugador or not id_rival:
-                return jsonify({
-                    'success': False,
-                    'error': 'Uno o ambos jugadores no existen'
-                }), 400
 
-            # Crear nueva partida
-            nueva_partida = {
-                'tablero': [[None]*7 for _ in range(6)],
-                'turno': 0
-            }
-            
-            cursor.execute(
-                """
+            if not id_jugador or not id_rival:
+                return jsonify({'success': False, 'error': 'Uno o ambos jugadores no existen'}), 400
+
+            nueva_partida = {'tablero': [[None]*7 for _ in range(6)], 'turno': 0}
+            partida_id_var = cursor.var(oracledb.NUMBER)
+            cursor.execute("""
                 INSERT INTO Partidas (IDJUGADOR, IDRival, Estado, Partida)
                 VALUES (:idj, :idr, 'En progreso', :partida)
-                """,
-                {
+                RETURNING PartidaID INTO :pid
+                """, {
                     'idj': id_jugador[0],
                     'idr': id_rival[0],
-                    'partida': json.dumps(nueva_partida)
-                }
-            )
-            
-            # Obtener el ID de la nueva partida
-            cursor.execute("""
-                SELECT PartidaID FROM Partidas 
-                WHERE ROWID = (SELECT MAX(ROWID) FROM Partidas)
-                """)
-            nueva_partida_id = cursor.fetchone()[0]
-            
+                    'partida': json.dumps(nueva_partida),
+                    'pid': partida_id_var
+                })
+            nueva_partida_id = int(partida_id_var.getvalue()[0])
             conn.commit()
-            
-            # Redirigir a la vista del juego con el nuevo ID
-            return redirect(url_for('juego', 
-                                 id_partida=nueva_partida_id,
-                                 jugador1=jugador1,
-                                 jugador2=jugador2))
-            
+
+            return redirect(url_for('juego', id_partida=nueva_partida_id, jugador1=jugador1, jugador2=jugador2))
         except Exception as e:
             if conn:
                 conn.rollback()
-            return jsonify({
-                'success': False,
-                'error': f'Error al crear partida: {str(e)}'
-            }), 500
+            return jsonify({'success': False, 'error': f'Error al crear partida: {str(e)}'}), 500
         finally:
             if conn:
                 conn.close()
-    
+
     # Cargar partida existente
     try:
         jugador1, jugador2, partida_json, estado, stats1, stats2 = obtener_datos_partida(id_partida)
-        
+        print(f"Partida cargada: {jugador1} vs {jugador2}, estado: {estado}")
+
         if not partida_json:
-            return jsonify({
-                'success': False,
-                'error': 'Partida no encontrada'
-            }), 404
-            
+            return jsonify({'success': False, 'error': 'Partida no encontrada'}), 404
+
         if estado == 'Terminada':
             return redirect(url_for('ver_partida', id_partida=id_partida))
-            
+
         return render_template('conecta4.html', 
-                            jugador1=jugador1, 
-                            jugador2=jugador2,
-                            stats1=stats1,
-                            stats2=stats2,
-                            partida_json=partida_json)
-                            
+                               jugador1=jugador1, 
+                               jugador2=jugador2,
+                               stats1=stats1,
+                               stats2=stats2,
+                               partida_json=partida_json)
     except Exception as e:
-        return jsonify({
-            'success': False,
-            'error': f'Error al cargar partida: {str(e)}'
-        }), 500
+        print(f"Error al cargar partida: {str(e)}") 
+        return jsonify({'success': False, 'error': f'Error al cargar partida: {str(e)}'}), 500
+
 
 @app.route('/ver_partida')
 def ver_partida():

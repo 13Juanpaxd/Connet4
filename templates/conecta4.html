@@ -698,7 +698,7 @@ async function reiniciarPartida() {
     const jugador1 = params.get('jugador1');
     const jugador2 = params.get('jugador2');
     const idPartida = params.get('id_partida');
-    
+
     try {
         const response = await fetch('/api/crear_nueva_partida', {
             method: 'POST',
@@ -712,60 +712,49 @@ async function reiniciarPartida() {
                 id_partida_original: idPartida
             })
         });
-        
-        if (!response.ok) {
-            throw new Error('Error en la respuesta del servidor');
-        }
-        
+
         const data = await response.json();
+
         if (data.success) {
+            // Redirigir a la nueva partida
             window.location.href = `/juego?id_partida=${data.id_partida}&jugador1=${encodeURIComponent(jugador1)}&jugador2=${encodeURIComponent(jugador2)}`;
         } else {
-            alert('Error al crear nueva partida: ' + (data.error || ''));
+            alert('Error al reiniciar partida: ' + (data.error || 'desconocido'));
         }
     } catch (error) {
         console.error('Error:', error);
-        alert('Error al conectar con el servidor');
+        alert('Error al reiniciar partida');
     }
 }
     
-    async function jugarDeNuevo() {
-    ocultarMenuPostPartida();
-    await terminarPartida();
-    
+   function jugarDeNuevo() {
     const params = new URLSearchParams(window.location.search);
     const jugador1 = params.get('jugador1');
     const jugador2 = params.get('jugador2');
-    const idPartida = params.get('id_partida');
-    
-    try {
-        const response = await fetch('/api/crear_nueva_partida', {
-            method: 'POST',
-            headers: { 
-                'Content-Type': 'application/json',
-                'Accept': 'application/json'
-            },
-            body: JSON.stringify({
-                jugador1: jugador1,
-                jugador2: jugador2,
-                id_partida_original: idPartida
-            })
-        });
-        
-        if (!response.ok) {
-            throw new Error('Error en la respuesta del servidor');
-        }
-        
-        const data = await response.json();
+    const id_partida_actual = params.get('id_partida');
+
+    fetch('/api/crear_nueva_partida', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            jugador1: jugador1,
+            jugador2: jugador2,
+            id_partida_original: id_partida_actual
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
         if (data.success) {
             window.location.href = `/juego?id_partida=${data.id_partida}&jugador1=${encodeURIComponent(jugador1)}&jugador2=${encodeURIComponent(jugador2)}`;
         } else {
-            alert('Error al crear nueva partida: ' + (data.error || ''));
+            console.error("Error:", data.error || "Error en la respuesta del servidor");
         }
-    } catch (error) {
-        console.error('Error:', error);
-        alert('Error al conectar con el servidor');
-    }
+    })
+    .catch(error => {
+        console.error("Error:", error);
+    });
 }
     
     async function volverAlMenu() {
